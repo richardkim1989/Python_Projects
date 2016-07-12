@@ -1,0 +1,52 @@
+setwd("C:/Users/Sung Min Kim/Desktop/Programming/R/kaggle/titanic")
+train <- read.csv("C:/Users/Sung Min Kim/Desktop/Programming/R/kaggle/titanic/train.csv")
+test <- read.csv("C:/Users/Sung Min Kim/Desktop/Programming/R/kaggle/titanic/test.csv")
+
+#summary of the train dataset
+head(train)
+summary(train)
+
+
+#scenario 1 - everyone dies
+table(train$Survived) #count of total passengers survied and dead
+prop.table(table(train$Survived)) #ratio of total passengers survived and dead
+
+test$Survived <- 0
+submit_1 <- data.frame(PassengerId = test$PassengerId, Survived = test$Survived)
+write.csv(submit_1, file = "1. all_killed.csv", row.names = FALSE)
+
+
+#scenario 2 - gender model - ALL women survives, ALL men dies
+table(train$Sex) #count of TOTAL male and female passengers
+prop.table(table(train$Sex)) #ratio of TOTAL male and female passengers
+ 
+table(train$Sex, train$Survived) #count of SURVIVED male and female passengers
+prop.table(table(train$Sex, train$Survived)) #ratio of SURVIVED male and female passengers out of TOTAL passengers
+prop.table(table(train$Sex, train$Survived), 1) #ratio of SURVIVED male and female passengers per gender group
+
+test$Survived <- 0
+test$Survived[test$Sex == "female"] <- 1
+submit_2 <-data.frame(PassengerId = test$PassengerId, Survived = test$Survived)
+write.csv(submit_2, file = "2. gender_class_model.csv", row.names = FALSE)
+
+
+#scenario 3 - gender-age model
+summary(train$Age)
+
+train$Child <- 0
+train$Child[train$Age < 18] <- 1
+
+aggregate(Survived ~ Child + Sex, data = train, FUN = sum)
+aggregate(Survived ~ Child + Sex, data = train, FUN = length)
+aggregate(Survived ~ Child + Sex, data = train, FUN = function(x) {sum(x)/length(x)})
+
+#scenario 4 - gender-class model
+train$Fare2 <- "30+"
+train$Fare2[train$Fare < 30 & train$Fare >= 20] <- "20-30"
+train$Fare2[train$Fare < 20 & train$Fare >= 10] <- "10-20"
+train$Fare2[train$Fare < 10] <- "<10"
+aggregate(Survived ~ Fare2 + Pclass + Sex, data = train, FUN = function(x) {sum(x)/length(x)})
+
+test$Survived <- 0
+test$Survived[test$Sex == "female"] <- 1
+test$Survived[test$Sex == "female" & test$Pclass == 3 & test$Fare >= 20] <- 0
