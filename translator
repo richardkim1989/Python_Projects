@@ -1,0 +1,43 @@
+from tkinter import *
+from tkinter.messagebox import *
+from translation import bing
+
+def ko_translate():
+    text = text_input.get()
+    ko_trans = bing(text, dst = 'ko')
+    text_output.insert(0, ko_trans)
+
+def en_translate():
+    text = text_input.get()
+    en_trans = bing(text, dst = 'en')
+    text_output.insert(0, en_trans)
+
+main = Tk()
+
+main.title("Translator") #application title
+
+#Input Text
+Label(main, text = "Enter text:").pack()
+
+text_input = Entry(main)
+text_input.pack()
+
+#Clear Input Text
+Button(main, text = "Clear", command = lambda: text_input.delete(0, END)).pack()
+
+#Output Language Selection
+Label(main, text = "Select language:").pack()
+
+Button(main, text = "Korean", command = ko_translate).pack()
+Button(main, text = "English", command = en_translate).pack()
+
+#Output Text
+Label(main, text = "Translation:").pack()
+
+text_output = Entry(main)
+text_output.pack()
+
+#Clear Output Text
+Button(main, text = "Clear", command = lambda: text_output.delete(0, END)).pack()
+
+mainloop()
